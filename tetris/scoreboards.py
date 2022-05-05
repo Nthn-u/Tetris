@@ -3,48 +3,82 @@ from random import randint
 
 
 class Cell:
-    def __init__(self, hold_block: int, next_block: int, current_block: int, maxblocks: int):
-        self.hold = Hold(hold_block)
-        self.next = Next(next_block)
-        self.current_block = current_block
-        self.block_list = []
-        self._maxblocks = maxblocks
+    def __init__(self, bpc: int):
+        self.bpc = bpc
         
+    def setblockpercell(self, block: int) -> None:
+        self.bpc = block
 
-    def lockblock(self) -> None:
-        self.hold.holding(self.current_block)
+            
+class Block:
+    def __init__(self, color: int, block: int, maxblocks: int, locked: int) -> None:
+        self.color = color  
+        self.block = block
+        self.maxblocks = maxblocks
+        self.locked = locked
 
-    def nextblock(self) -> None:
+class Current(Block):
+    def __init__(self, color: int, block: int, next_block: int, hold_block: int, cell: int) -> None:
+        super().__init__(color, block, 1, False)
+        self.next = Next(next_block)
+        self.hold = Hold(hold_block)
+        self.cell = Cell(cell)
+        self.block_list = []
+        
+    
+    def currentblock(self):
+        self.block = self.block_list[0]
+
+    def nextblock(self):
         self.falling = self.block_list.pop(0)
         self.block_list.append(self.next.randomblock(7))
-
+    
     def addblock(self, block: int) -> None:
-        if len(self.block_list) < self._maxblocks:
+        if len(self.block_list) < Next.maxblocks:
             self.block_list.append(block)
-            
 
-class Hold:
-    def __init__(self, block: int) -> None:
-        self.block = block
-        self.hold_block = block
+    def lockblock(self) -> None:
+        if self.block_list < self.maxblocks:
+            self.hold.holding(self.block)
+
+    def oneblockpercell(self) -> None:
+        Cell.setblockpercell(1)
+
+    def lock(self) -> None:
+        self.locked = True
+
+    def unlock(self) -> None:
+        self.locked = False
+
+
+
+class Hold(Block):
+    def __init__(self, color: int, block: int) -> None:
+        super().__init__(color, block, 1, True)
 
     def holding(self, holdingblock: int) -> None:
         self.hold_block = holdingblock
 
+    def lock(self) -> None:
+        self.locked = True
 
-class Next:
-    def __init__(self, block: int) -> None:
-        self.nblock = block
-        self.next_block = block
+    def unlock(self) -> None:
+        self.locked = False
+
+
+class Next(Block):
+    def __init__(self, color: int, block: int) -> None:
+        super().__init__(color, block, 5, True) 
 
     def randomblock(self, maxblocks: int) -> None:
         self.next_block = randint(0, maxblocks)
         
+    def lock(self) -> None:
+        self.locked = True
+
+    def unlock(self) -> None:
+        self.locked = False
         
-
-
-
-
 
 
 class Text:
@@ -111,5 +145,5 @@ class Score:
 
 #client code
 t = Text(0, 0)
-cell1 = Cell(0, randint(0, 7), 0, 7)
+
 
