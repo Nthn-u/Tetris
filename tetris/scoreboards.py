@@ -81,14 +81,6 @@ class Next(Block):
         
 
 
-class Text:
-    def __init__(self, game_points: int, game_lvl: int):
-        self.score = Score(game_points)
-        self.round = Level(game_lvl)
-
-    def lvlincrease(self):
-        self.round.addlvl(1)
-
 
 class Level:
     def __init__(self, level: int) -> None:
